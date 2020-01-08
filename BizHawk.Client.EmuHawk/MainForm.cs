@@ -281,6 +281,29 @@ namespace BizHawk.Client.EmuHawk
 				AllowDrop = true;
 				DragEnter += FormDragEnter;
 				DragDrop += FormDragDrop;
+				if (!Config.SkipOutdatedOSCheck)
+				{
+					static string GetRegValue(string key)
+					{
+						using var proc = OSTailoredCode.ConstructSubshell("REG", $@"QUERY ""HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion"" /V {key}");
+						proc.Start();
+						return proc.StandardOutput.ReadToEnd().Split(new[] { '\n' })[2].Substring(18 + key.Length); // 18 only works for REG_SZ (string)
+					}
+					var winVer = float.Parse(GetRegValue("CurrentVersion"));
+					if (winVer < 6.3f)
+					{
+						throw new Exception($"Quick reminder: Windows {(winVer < 6.2f ? winVer < 6.1f ? winVer < 6.0f ? "XP" : "Vista" : "7" : "8")} is no longer supported by Microsoft. EmuHawk will continue to work, but please get a new operating system for increased security (either Windows 8.1, Windows 10, or a GNU+Linux distro).");
+					}
+					else if (GetRegValue("ProductName").Contains("Windows 10"))
+					{
+						var win10version = int.Parse(GetRegValue("ReleaseId"));
+						if (win10version < 1809) throw new Exception($"Quick reminder: version {win10version} of Windows 10 is no longer supported by Microsoft. EmuHawk will continue to work, but please update to at least 1809 \"Redstone 5\" for increased security.");
+					}
+					else
+					{
+						// 8.1: can't be bothered writing code for KB installed check, not that I have a Win8.1 machine to test on anyway, so it gets a free pass --yoshi
+					}
+				}
 			};
 
 			Closing += (o, e) =>
