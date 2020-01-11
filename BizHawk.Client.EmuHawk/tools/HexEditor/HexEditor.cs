@@ -2075,7 +2075,7 @@ namespace BizHawk.Client.EmuHawk
 			}
 		}
 
-		private readonly Pen _blackPen = new Pen(Color.Black);
+		private readonly Pen _blackPen = new Pen(Global.Config.HexForegrndColor);
 		private readonly SolidBrush _freezeBrush = new SolidBrush(Global.Config.HexFreezeColor);
 		private readonly SolidBrush _freezeHighlightBrush = new SolidBrush(Global.Config.HexHighlightFreezeColor);
 		private readonly SolidBrush _highlightBrush = new SolidBrush(Global.Config.HexHighlightColor);
